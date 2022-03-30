@@ -35,6 +35,7 @@ const crearUser = async (req, res = response) => {
       ok: true,
       uid: dbUser.id,
       name,
+      email,
       token,
     });
   } catch (error) {
@@ -77,10 +78,9 @@ const loginUser = async (req, res = response) => {
       ok: true,
       uid: dbUser.id,
       name: dbUser.name,
+      email,
       token,
     });
-
-    
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -90,14 +90,20 @@ const loginUser = async (req, res = response) => {
   }
 };
 
-const revalidToken = (req, res = response) => {
+const revalidToken = async (req, res = response) => {
+  const { uid } = req;
 
-  
+  const dbUser = await User.findById(uid);
+
+  // Generar el JWT
+  const token = await generarJWT(uid, dbUser.name);
 
   return res.json({
     ok: true,
-    msg: "Renew",
-    token
+    uid,
+    name: dbUser.name,
+    email: dbUser.email,
+    token,
   });
 };
 
